@@ -65,6 +65,6 @@ class simGym():
         return observation, info 
 
     def step(self,actions):
-        observation, reward, terminated, truncated, info = self.env.step(actions)
+        observation, reward, terminated, truncated, info = self.env.step(actions*2)
         return observation, reward, terminated, truncated, info
         

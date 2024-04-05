@@ -72,6 +72,7 @@ class PolicyNetwork(nn.Module):
           layer_init(nn.Linear(self.hidden_size, self.hidden_size)),
           nn.Tanh(),
           layer_init(nn.Linear(self.hidden_size, 1), std=1.0),
+          nn.Tanh(),
       )
       self.actor_mean = nn.Sequential(
           layer_init(nn.Linear(n_states, self.hidden_size)),
@@ -79,6 +80,7 @@ class PolicyNetwork(nn.Module):
           layer_init(nn.Linear(self.hidden_size, self.hidden_size)),
           nn.Tanh(),
           layer_init(nn.Linear(self.hidden_size, n_actions), std=0.01),
+          nn.Tanh(),
       )
       self.actor_logstd = torch.Tensor(torch.zeros(1, n_actions))
       # Create optimizer and storage.
