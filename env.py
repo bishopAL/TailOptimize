@@ -1,6 +1,8 @@
 import serial
 import time
 import gymnasium as gym
+import numpy as np
+from gymnasium import spaces
 
 RECORDNUM = 10
 
@@ -35,13 +37,12 @@ class kunEnv():
             self.force_record_index = 0
         self.env = [self.curved_angle]
         self.actions = actions
-        
-        
-    def reward(self):
         action_speed_weight = 0.0001
         normal_bias = -10
         self.reward = sum(self.force_record) + action_speed_weight*(self.actions-self.previous_actions)**2 + normal_bias
-        
+        terminated, truncated, info = 0
+        return np.array(self.curved_angle), self.reward, terminated, truncated, info
+
     def reset(self):
         self.previous_actions = 0
         self.ser.write(f"{0.00}\n".encode('utf-8'))
@@ -55,9 +56,9 @@ class kunEnv():
 class simGym():
     def __init__(self, render_mode=None):
         if not render_mode:
-            self.env = gym.make('Pendulum-v1', g=9.81)
+            self.env = gym.make('MountainCarContinuous-v0')
         else:
-            self.env = gym.make('Pendulum-v1', g=9.81, render_mode="human")
+            self.env = gym.make('MountainCarContinuous-v0', render_mode="human")
         # self.env = gym.make('CartPole-v1')
 
     def reset(self):
@@ -65,6 +66,6 @@ class simGym():
         return observation, info 
 
     def step(self,actions):
-        observation, reward, terminated, truncated, info = self.env.step(actions*2)
+        observation, reward, terminated, truncated, info = self.env.step(actions)
         return observation, reward, terminated, truncated, info
         

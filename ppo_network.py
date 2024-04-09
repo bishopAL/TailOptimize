@@ -38,9 +38,9 @@ class PolicyNetwork(nn.Module):
                  gamma=0.99,
                  gae_lambda=0.95,
                  max_grad_norm=0.5,
-                 learning_rate=2e-4,
+                 learning_rate=3e-4,
                  update_epochs=10,
-                 n_minibatches=32,
+                 n_minibatches=64,
                  hidden_size=64):
       super(PolicyNetwork, self).__init__() 
       # Parameters.
@@ -72,7 +72,6 @@ class PolicyNetwork(nn.Module):
           layer_init(nn.Linear(self.hidden_size, self.hidden_size)),
           nn.Tanh(),
           layer_init(nn.Linear(self.hidden_size, 1), std=1.0),
-          nn.Tanh(),
       )
       self.actor_mean = nn.Sequential(
           layer_init(nn.Linear(n_states, self.hidden_size)),
@@ -80,7 +79,6 @@ class PolicyNetwork(nn.Module):
           layer_init(nn.Linear(self.hidden_size, self.hidden_size)),
           nn.Tanh(),
           layer_init(nn.Linear(self.hidden_size, n_actions), std=0.01),
-          nn.Tanh(),
       )
       self.actor_logstd = torch.Tensor(torch.zeros(1, n_actions))
       # Create optimizer and storage.
@@ -133,7 +131,7 @@ class PolicyNetwork(nn.Module):
       actions = torch.from_numpy(buffer.actions)
       rewards = buffer.rewards
       assert states.shape[0] == actions.shape[0] == self.n_episodes
-    #   assert states.shape[1] == actions.shape[1] + 1 == self.n_steps + 1
+      assert states.shape[1] == actions.shape[1]== self.n_steps
       advantages = torch.zeros_like(self.rewards).to(self.device)
       for episode in range(self.n_episodes):
         for step in range(self.n_steps):
