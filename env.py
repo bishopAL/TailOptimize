@@ -11,12 +11,12 @@ def read_force():
 
 class kunEnv():
     def __init__(self):
-        ser = serial.Serial('/dev/ttyAMA0', 115200, timeout=1)
-        ser.flush()
+        self.ser = serial.Serial('/dev/ttyAMA0', 115200, timeout=0.2)
+        self.ser.flush()
         self.curved_angle = 0
         self.force = 0
         self.freq = 10
-        self.env = [0, 0]
+        self.states = [0, 0]
         self.force_record = [0 for i in range(RECORDNUM)]
         self.force_record_index = 0
         self.previous_actions = 0
@@ -25,28 +25,30 @@ class kunEnv():
     def step(self,actions): # actions: lens = 1, actions = pressure
         self.previous_actions = self.actions
         self.ser.write(f"{actions}\n".encode('utf-8'))
-        time.sleep(0.001)
-        for i in range(10): # try communication times
-            if self.ser.in_waiting > 0:
-                self.curved_angle = self.ser.readline().decode('utf-8').rstrip() # Curved angle
-                break
+        line = self.ser.readline().decode('utf-8').rstrip()  # 尝试读取一行数据
+        if line:  # 检查是否接收到数据
+            if ',' in line:  # 检查数据是否为两个值
+                analog_values = line.split(',')  # 使用逗号分隔字符串
+                if len(analog_values) == 2:
+                    a1_value, a2_value = analog_values
+                    print(f"A1 Value: {a1_value}, A2 Value: {a2_value}")
         self.force = read_force()
         self.force_record[self.force_record_index] = self.force
         self.force_record_index += 1
         if self.force_record_index>=RECORDNUM:
             self.force_record_index = 0
-        self.env = [self.curved_angle]
+        self.states = np.array([a1_value,a2_value])
         self.actions = actions
-        action_speed_weight = 0.0001
+        action_speed_weight = -0.01
         normal_bias = -10
-        self.reward = sum(self.force_record) + action_speed_weight*(self.actions-self.previous_actions)**2 + normal_bias
+        self.reward = sum(self.force_record) + action_speed_weight*(self.actions-self.previous_actions)**2 - 10
         terminated, truncated, info = 0
-        return np.array(self.curved_angle), self.reward, terminated, truncated, info
+        return self.states, self.reward, terminated, truncated, info
 
     def reset(self):
         self.previous_actions = 0
         self.ser.write(f"{0.00}\n".encode('utf-8'))
-        time.sleep(0.1)
+        time.sleep(0.5)
         self.actions = 0
         self.force_record = [0 for i in range(RECORDNUM)]
         self.force_record_index = 0

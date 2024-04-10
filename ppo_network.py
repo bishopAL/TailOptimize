@@ -65,6 +65,7 @@ class PolicyNetwork(nn.Module):
       self.batch_size = self.n_steps * self.n_episodes
       self.minibatch_size = self.batch_size // self.n_minibatches
       self.cuda = True 
+      self.current_training_time = 0 
       # Build network.
       self.critic = nn.Sequential(
           layer_init(nn.Linear(n_states, self.hidden_size)),
@@ -226,3 +227,4 @@ class PolicyNetwork(nn.Module):
               nn.utils.clip_grad_norm_(self.parameters(), self.max_grad_norm)
               self.optimizer.step()
       #print('Mean reward: {}'.format(self.rewards.mean().item()))
+      self.current_training_time += 1
