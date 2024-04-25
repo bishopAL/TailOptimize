@@ -4,6 +4,7 @@ import numpy as np
 from data import Trajectory, Buffer
 import pickle
 from datetime import datetime
+import time
 
 n_actions = 1
 n_states = 2
@@ -32,11 +33,13 @@ with open(file_path, "rb") as f: # "rb" because we want to read in binary
     pn = pickle.load(f)
 
 # show results
-sim = simGym(render_mode=True)
+sim = simGym(pn.env_name,render_mode=True)
 observation, info = sim.reset()
-for _ in range(300):
-            actions = pn.infer(state=observation, noise=None)
+for _ in range(10000):
+            actions = pn.infer(state=observation, noise=False)
             observation, reward, terminated, truncated, info = sim.step(actions)
-            if terminated or truncated:
-                observation, info = sim.reset()
-                break
+            print(reward, actions)
+            time.sleep(0.1)
+            # if terminated or truncated:
+            #     observation, info = sim.reset()
+            #     break

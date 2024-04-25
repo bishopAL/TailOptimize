@@ -40,7 +40,7 @@ class PolicyNetwork(nn.Module):
                  max_grad_norm=0.5,
                  learning_rate=3e-4,
                  update_epochs=10,
-                 n_minibatches=64,
+                 n_minibatches=32,
                  hidden_size=64):
       super(PolicyNetwork, self).__init__() 
       # Parameters.
@@ -151,7 +151,7 @@ class PolicyNetwork(nn.Module):
           self.dones[step, episode] = done
         # Advantages. 
         with torch.no_grad():
-          next_obs = states[-1, episode]
+          next_obs = states[episode, -1]
           next_value = self.get_value(next_obs).reshape(1, -1)
           next_done = True # For now, assume that episode is done on last step. 
           lastgaelam = 0

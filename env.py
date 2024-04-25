@@ -3,6 +3,7 @@ import time
 import gymnasium as gym
 import numpy as np
 from gymnasium import spaces
+from gymnasium.spaces import Box
 
 RECORDNUM = 10
 
@@ -21,6 +22,10 @@ class kunEnv():
         self.force_record_index = 0
         self.previous_actions = 0
         self.actions = 0
+        self.single_observation_space = 1
+        self.single_action_space = 1
+        self.action_space = Box(low=-1.0, high=1.0, shape=(1,), dtype=np.float32)
+        self.observation_space = Box(low=-1.0, high=1.0, shape=(4,2), dtype=np.float32)
         
     def step(self,actions): # actions: lens = 1, actions = pressure
         self.previous_actions = self.actions
@@ -56,11 +61,11 @@ class kunEnv():
         self.force = 0
 
 class simGym():
-    def __init__(self, render_mode=None):
+    def __init__(self, name, render_mode=None):
         if not render_mode:
-            self.env = gym.make('MountainCarContinuous-v0')
+            self.env = gym.make(name)
         else:
-            self.env = gym.make('MountainCarContinuous-v0', render_mode="human")
+            self.env = gym.make(name, render_mode="human")
         # self.env = gym.make('CartPole-v1')
 
     def reset(self):

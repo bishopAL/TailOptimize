@@ -15,7 +15,7 @@ class Buffer:
   def reset(self):
     self.states = np.zeros((self.n_episodes, self.n_steps, self.state_space if self.state_space is not None else 0), dtype=np.float32)
     self.actions = np.zeros((self.n_episodes, self.n_steps, self.action_space if self.action_space is not None else 0), dtype=np.float32)
-    self.rewards = np.zeros((self.n_episodes, self.n_steps))
+    self.rewards = np.zeros((self.n_episodes, self.n_steps), dtype=np.float64)
     self.episode_index = 0
 
   def add(self, trajectory):
